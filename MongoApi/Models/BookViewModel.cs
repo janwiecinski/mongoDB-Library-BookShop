@@ -54,7 +54,7 @@ namespace MongoApi.Models
     public class BookRentViewModel
     {
         [BsonElement("OrderId")]
-        public int OrderId { get; set; }
+        public string OrderId { get; }
 
         [BsonElement("RentDate")]
         public DateTime RentDate { get; set; }
@@ -77,7 +77,7 @@ namespace MongoApi.Models
     public class ClientViewModel
     {
         [BsonElement("ClientId")]
-        public int ClientId { get; set; }
+        public string ClientId { get; }
 
         [BsonElement("ClientFirstName")]
         public string ClientFirstName { get; set; }

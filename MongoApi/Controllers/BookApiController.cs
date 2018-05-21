@@ -5,6 +5,8 @@ using DataAcces.DAL.Models;
 using DataAcces.DAL.Repository;
 using MongoApi.Models;
 using AutoMapper;
+using System;
+using System.Runtime.Serialization;
 
 namespace MongoApi.Controllers
 {
@@ -14,10 +16,12 @@ namespace MongoApi.Controllers
     {
         private IRepository<BookModel> _dsObject;
         private readonly IMapper _mapper;
+
         public BookApiController(IRepository<BookModel> dsObject, IMapper mapper)
         {
             _dsObject = dsObject;
             _mapper = mapper;
+
         }
 
         [HttpGet]
@@ -85,33 +89,40 @@ namespace MongoApi.Controllers
 
             return new OkResult();
         }
-
-        public IActionResult BookRent(string id)
+        [HttpPut("bookRent/{id}")]
+        public IActionResult BookRent(string id, Client client)
         {
-            
             var book = _dsObject.GetItem(new ObjectId(id));
             var copyList = book.BookCopyItems.GetEnumerator();
-            var copie = copyList.Current;
-            
-            while (copie.IsAvailable == false)
-            {
-                copyList.MoveNext();
-            }
-            copie = copyList.Current;
+            copyList.MoveNext();
+            var copy = copyList.Current;
 
-            var bookRent = new BookRent {
+            while (copy.IsAvailable == false)
+            {
+
+                if (copyList.MoveNext()==false)
+                {
+                    return new NotFoundObjectResult("No copy avaiable...");
+                }
+                copy = copyList.Current;
+            }
+
+            copy.IsAvailable = false;
+
+            var bookRent = new BookRent
+            {
                 RentDate = System.DateTime.Now,
                 AssumendReturnDate = System.DateTime.Now.AddDays(30),
-                OrderId = 10,
-                Client = new Client {
-                    ClientId = 1,
-                    ClientFirstName = "Jan",
-                    ClientLastName = "Wilczak",
-                    ClientEmail = "janwiecinski1985@gmail.com"
+                Client = new Client
+                {
+                    ClientFirstName = client.ClientFirstName,
+                    ClientLastName = client.ClientLastName,
+                    ClientEmail = client.ClientEmail
                 }
             };
-            copie.BookRent.
 
+            copy.BookRent.Add(bookRent);
+            _dsObject.Update(book);
 
             return new OkResult();
         }

@@ -8,6 +8,10 @@ using DataAcces.DAL.Models;
 using DataAcces.DAL;
 using AutoMapper;
 using DataAcces.DAL.Interfaces;
+using Hangfire;
+using Microsoft.Owin;
+
+[assembly: OwinStartup(typeof(MongoApi.Startup))]
 
 namespace MongoApi
 {
@@ -26,6 +30,9 @@ namespace MongoApi
             services.AddTransient<IRepository<BookModel>, GenericRepository<BookModel>>();
             services.AddTransient<IRepository<Products>, GenericRepository<Products>>();
             services.AddScoped<IMyDatabase<Products>,MyDatabase<Products>>();
+            services.AddScoped<IMyDatabase<BookModel>, MyDatabase<BookModel>>();
+            services.AddHangfire(x => x.UseSqlServerStorage(@"Server=JANEK1985\SQLEXPRESS; Database=Hangfire; Integrated Security=SSPI;"));
+
             services.AddAutoMapper();
 
             services.AddMvc();
@@ -43,16 +50,16 @@ namespace MongoApi
             {
                 app.UseDeveloperExceptionPage();
             }
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
             
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
 
             app.UseMvc();
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
         }
     }
 }

@@ -52,10 +52,18 @@ namespace DataAcces.DAL.Models
 
     }
 
-    public class BookRent
-    {
+    public class BookRent { 
+
+        public string strId;
+
         [BsonElement("OrderId")]
-        public int OrderId { get; set; }
+        public string OrderId
+        {
+            get { if (strId == string.Empty)
+                { return strId = Guid.NewGuid().ToString(); }
+                  return strId ; }
+            set { strId = value; }
+        }
 
         [BsonElement("RentDate")]
         public DateTime RentDate { get; set; }
@@ -77,8 +85,17 @@ namespace DataAcces.DAL.Models
 
     public class Client
     {
+        public string strId;
         [BsonElement("ClientId")]
-        public int ClientId { get; set; }
+        public string ClientId {
+            get
+            {
+                if (strId == string.Empty)
+                { return strId = Guid.NewGuid().ToString(); }
+                  return strId;
+            }
+            set { strId = value; }
+        }
 
         [BsonElement("ClientFirstName")]
         public string ClientFirstName { get; set; }
