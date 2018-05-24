@@ -1,38 +1,37 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MongoApi.Models
 {
     public class BookViewModel
     {
+        [BsonElement("BookId")]
+        public int BookId { get; set; }
 
         [BsonElement("Title")]
-        [BsonIgnoreIfNull]
         public string Title { get; set; }
 
         [BsonElement("Author")]
-        [BsonIgnoreIfNull]
-        public AuthorViewModel Author { get; set; }
+        public  AuthorViewModel Author { get; set; }
 
-        [BsonElement("BookCopieModelList")]
-        public IList<BookCopieModel> BookCopieModel { get; set; }
+        [BsonElement("BookCopyItems")]
+        public  IEnumerable<BookCopyModel> BookCopyItems { get; set; }
 
     }
-    public class BookCopieModel {
+    public class BookCopyModel
+    {
         private IEnumerable<BookRentViewModel> _bookRents;
 
-        [BsonElement("BookCopieId")]
-        public int BookCopieId { get;  set; }
+        [BsonElement("BookCopyId")]
+        public int BookCopyId { get;  set; }
 
-        [BsonElement("IsAvaible")]
-        public bool IsAvaible { get; set; }
+        [BsonElement("IsAvailable")]
+        public bool IsAvailable { get; set; }
 
         [BsonElement("BookRent")]
         [BsonIgnoreIfNull]
-        public IEnumerable<BookRentViewModel> BookRent
+        public  IEnumerable<BookRentViewModel> BookRent
         {
             get { return _bookRents ?? (_bookRents = new List<BookRentViewModel>()); }
             set { _bookRents = value; }
@@ -54,7 +53,7 @@ namespace MongoApi.Models
     public class BookRentViewModel
     {
         [BsonElement("OrderId")]
-        public string OrderId { get; }
+        public string OrderId { get;}
 
         [BsonElement("RentDate")]
         public DateTime RentDate { get; set; }
@@ -71,13 +70,13 @@ namespace MongoApi.Models
         public int PenaltyCost { get; set; }
 
         [BsonElement("Client")]
-        public ClientViewModel Client { get; set; }
+        public  ClientViewModel Client { get; set; }
     }
 
     public class ClientViewModel
     {
         [BsonElement("ClientId")]
-        public string ClientId { get; }
+        public string ClientId { get;}
 
         [BsonElement("ClientFirstName")]
         public string ClientFirstName { get; set; }

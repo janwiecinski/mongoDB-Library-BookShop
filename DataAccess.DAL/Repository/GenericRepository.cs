@@ -3,11 +3,8 @@ using DataAcces.DAL.Models;
 using DataAcces.DAL.Repository;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Builders;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace DataAcces.DAL
 {

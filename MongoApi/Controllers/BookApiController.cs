@@ -5,8 +5,9 @@ using DataAcces.DAL.Models;
 using DataAcces.DAL.Repository;
 using MongoApi.Models;
 using AutoMapper;
+using Hangfire;
+using MongoApi.Utilts;
 using System;
-using System.Runtime.Serialization;
 
 namespace MongoApi.Controllers
 {
@@ -14,10 +15,10 @@ namespace MongoApi.Controllers
     [Route("api/Book")]
     public class BookApiController : Controller
     {
-        private IRepository<BookModel> _dsObject;
+        private IGenericService<BookModel> _dsObject;
         private readonly IMapper _mapper;
 
-        public BookApiController(IRepository<BookModel> dsObject, IMapper mapper)
+        public BookApiController(IGenericService<BookModel> dsObject, IMapper mapper)
         {
             _dsObject = dsObject;
             _mapper = mapper;
@@ -49,28 +50,31 @@ namespace MongoApi.Controllers
             {
                 return NotFound();
             }
+            var resultModel = _mapper.Map<BookViewModel>(book);
 
-            return new ObjectResult(book);
+            return new ObjectResult(resultModel);
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]BookModel p)
+        public IActionResult Post([FromBody]BookViewModel bookViewModel)
         {
-            _dsObject.Create(p);
-            return new OkObjectResult(p);
+            var bookModel = _mapper.Map<BookModel>(bookViewModel);
+            _dsObject.Create(bookModel);
+            return new OkObjectResult(bookModel);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(string id, [FromBody]BookModel p)
+        public IActionResult Put(string id, [FromBody]BookViewModel bookViewModel)
         {
-            var prodId = new ObjectId(id);
-            var product = _dsObject.GetItem(prodId);
+            var bookId = new ObjectId(id);
+            var book = _dsObject.GetItem(bookId);
 
-            if (product == null)
+            if (book == null)
             {
                 return NotFound();
             }
-            _dsObject.Update(p);
+            var bookModel = _mapper.Map(bookViewModel, book);
+            _dsObject.Update(bookModel);
 
             return new OkResult();
         }
@@ -78,19 +82,19 @@ namespace MongoApi.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(string id)
         {
-            var product = _dsObject.GetItem(new ObjectId(id));
+            var book = _dsObject.GetItem(new ObjectId(id));
 
-            if (product == null)
+            if (book == null)
             {
                 return NotFound();
             }
 
-            _dsObject.Remove(product.Id);
+            _dsObject.Remove(book.Id);
 
             return new OkResult();
         }
         [HttpPut("bookRent/{id}")]
-        public IActionResult BookRent(string id, Client client)
+        public IActionResult BookRent(string id, ClientViewModel client)
         {
             var book = _dsObject.GetItem(new ObjectId(id));
             var copyList = book.BookCopyItems.GetEnumerator();
@@ -108,6 +112,9 @@ namespace MongoApi.Controllers
             }
 
             copy.IsAvailable = false;
+
+            BackgroundJob.Enqueue(() => SendMessage.SendSimpleMessage());
+            BackgroundJob.Schedule(() => SendMessage.SendSimpleMessage(), TimeSpan.FromSeconds(28));
 
             var bookRent = new BookRent
             {

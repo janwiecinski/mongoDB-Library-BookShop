@@ -7,7 +7,8 @@ namespace DataAcces.DAL.Models
 {
     public class BookModel : BaseModel
     {
-        private IEnumerable<BookCopy> _bookCopies;
+        [BsonElement("BookId")]
+        public int BookId { get; set; }
 
         [BsonElement("Title")]
         [BsonIgnoreIfNull]
@@ -15,9 +16,10 @@ namespace DataAcces.DAL.Models
 
         [BsonElement("Author")]
         [BsonIgnoreIfNull]
-        public Author Author { get; set; }
+        public  Author Author { get; set; }
 
-        public IEnumerable<BookCopy> BookCopyItems { get; set; }
+        [BsonElement("BookCopyItems")]
+        public  IEnumerable<BookCopy> BookCopyItems{ get; set; }
     }
     public class BookCopy
     {
@@ -31,8 +33,7 @@ namespace DataAcces.DAL.Models
 
         [BsonElement("BookRent")]
         [BsonIgnoreIfNull]
-        //CopyRent
-        public IList<BookRent> BookRent
+        public  IList<BookRent> BookRent
         {
             get { return _bookRents ?? (_bookRents = new List<BookRent>()); }
             set { _bookRents = value; }
@@ -54,12 +55,12 @@ namespace DataAcces.DAL.Models
 
     public class BookRent { 
 
-        public string strId;
+        private string strId;
 
         [BsonElement("OrderId")]
         public string OrderId
         {
-            get { if (strId == string.Empty)
+            get { if (strId == null)
                 { return strId = Guid.NewGuid().ToString(); }
                   return strId ; }
             set { strId = value; }
@@ -80,17 +81,17 @@ namespace DataAcces.DAL.Models
         public int PenaltyCost { get; set; }
 
         [BsonElement("Client")]
-        public Client Client { get; set; }
+        public  Client Client { get; set; }
     }
 
     public class Client
     {
-        public string strId;
+        private string strId;
         [BsonElement("ClientId")]
         public string ClientId {
             get
             {
-                if (strId == string.Empty)
+                if (strId == null)
                 { return strId = Guid.NewGuid().ToString(); }
                   return strId;
             }

@@ -10,6 +10,8 @@ using AutoMapper;
 using DataAcces.DAL.Interfaces;
 using Hangfire;
 using Microsoft.Owin;
+using MongoApi.Utilts;
+using MongoApi.Controllers;
 
 [assembly: OwinStartup(typeof(MongoApi.Startup))]
 
@@ -27,14 +29,15 @@ namespace MongoApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<IISOptions>(options => { options.ForwardClientCertificate = false; options.AutomaticAuthentication = true; });
+
             services.AddTransient<IRepository<BookModel>, GenericRepository<BookModel>>();
-            services.AddTransient<IRepository<Products>, GenericRepository<Products>>();
-            services.AddScoped<IMyDatabase<Products>,MyDatabase<Products>>();
+            services.AddTransient<IGenericService<BookModel>, GenericService<BookModel>>();
             services.AddScoped<IMyDatabase<BookModel>, MyDatabase<BookModel>>();
             services.AddHangfire(x => x.UseSqlServerStorage(@"Server=JANEK1985\SQLEXPRESS; Database=Hangfire; Integrated Security=SSPI;"));
 
             services.AddAutoMapper();
-
+            
             services.AddMvc();
 
             services.AddSwaggerGen(c =>
