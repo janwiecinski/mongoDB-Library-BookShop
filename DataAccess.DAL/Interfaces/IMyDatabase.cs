@@ -2,9 +2,8 @@
 
 namespace DataAcces.DAL.Interfaces
 {
-    public interface IMyDatabase<T>
+    public interface IMyDatabaseWrapper
     {
        IMongoDatabase Database { get; }
-       IMongoCollection<T> Collection { get; }
     }
 }

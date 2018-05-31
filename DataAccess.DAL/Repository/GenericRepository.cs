@@ -3,6 +3,7 @@ using DataAcces.DAL.Models;
 using DataAcces.DAL.Repository;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,11 +11,11 @@ namespace DataAcces.DAL
 {
     public class GenericRepository<T>:IRepository<T> where T:BaseModel 
     {
-
         public IMongoCollection<T> Collection;
-        public GenericRepository(IMyDatabase<T> database)
+
+        public GenericRepository(IMyDatabaseWrapper database)
         {
-            Collection = database.Collection;
+            Collection = database.Database.GetCollection<T>(typeof(T).Name);
         }
 
         public IEnumerable<T> GetItems()
@@ -48,6 +49,22 @@ namespace DataAcces.DAL
         {
             var searchedElement = Builders<T>.Filter.Eq(s => s.Id, id);
             Collection.DeleteOne(searchedElement);
+        }
+
+        public void InsertMany(IEnumerable<T> bookList)
+        {
+            foreach (var item in bookList)
+            {
+                item.Id = new ObjectId();
+            }
+            try
+            {
+                Collection.InsertMany(bookList);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

@@ -2,12 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using DataAcces.DAL.Models;
-using DataAcces.DAL.Repository;
 using MongoApi.Models;
 using AutoMapper;
-using Hangfire;
-using MongoApi.Utilts;
-using System;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace MongoApi.Controllers
 {
@@ -15,29 +14,23 @@ namespace MongoApi.Controllers
     [Route("api/Book")]
     public class BookApiController : Controller
     {
-        private IGenericService<BookModel> _dsObject;
+        private IBookModelService _bookService;
         private readonly IMapper _mapper;
 
-        public BookApiController(IGenericService<BookModel> dsObject, IMapper mapper)
+        public BookApiController(IBookModelService dsObject, IMapper mapper)
         {
-            _dsObject = dsObject;
+            _bookService = dsObject;
             _mapper = mapper;
-
         }
 
         [HttpGet]
         public IEnumerable<BookViewModel> Get()
         {
-            var itemList = _dsObject.GetItems();
+            var itemList = _bookService.GetItems();
 
-            IList<BookViewModel> modelList = new List<BookViewModel>();
+            IEnumerable<BookViewModel> modelList = new List<BookViewModel>();
 
-            foreach(var item in itemList)
-            {
-                var bookViewModel = new BookViewModel();
-                bookViewModel = _mapper.Map<BookViewModel>(item);
-                modelList.Add(bookViewModel);
-            }
+            modelList = _mapper.Map<IEnumerable<BookModel>, IEnumerable<BookViewModel>>(itemList);
 
             return modelList;
         }
@@ -45,7 +38,7 @@ namespace MongoApi.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(string id)
         {
-            var book = _dsObject.GetItem(new ObjectId(id));
+            var book = _bookService.GetItem(new ObjectId(id));
             if (book == null)
             {
                 return NotFound();
@@ -59,7 +52,9 @@ namespace MongoApi.Controllers
         public IActionResult Post([FromBody]BookViewModel bookViewModel)
         {
             var bookModel = _mapper.Map<BookModel>(bookViewModel);
-            _dsObject.Create(bookModel);
+
+            _bookService.Create(bookModel);
+
             return new OkObjectResult(bookModel);
         }
 
@@ -67,14 +62,14 @@ namespace MongoApi.Controllers
         public IActionResult Put(string id, [FromBody]BookViewModel bookViewModel)
         {
             var bookId = new ObjectId(id);
-            var book = _dsObject.GetItem(bookId);
+            var book = _bookService.GetItem(bookId);
 
             if (book == null)
             {
                 return NotFound();
             }
             var bookModel = _mapper.Map(bookViewModel, book);
-            _dsObject.Update(bookModel);
+            _bookService.Update(bookModel);
 
             return new OkResult();
         }
@@ -82,56 +77,34 @@ namespace MongoApi.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(string id)
         {
-            var book = _dsObject.GetItem(new ObjectId(id));
+            var book = _bookService.GetItem(new ObjectId(id));
 
             if (book == null)
             {
                 return NotFound();
             }
-
-            _dsObject.Remove(book.Id);
-
+            _bookService.Remove(book.Id);
             return new OkResult();
         }
+
         [HttpPut("bookRent/{id}")]
-        public IActionResult BookRent(string id, ClientViewModel client)
+        public IActionResult BookRent(string id, ClientViewModel clientModel)
         {
-            var book = _dsObject.GetItem(new ObjectId(id));
-            var copyList = book.BookCopyItems.GetEnumerator();
-            copyList.MoveNext();
-            var copy = copyList.Current;
+            var client = _mapper.Map<Client>(clientModel);
+            var book = _bookService.GetItem(new ObjectId(id));
+            var booUpdated = _bookService.BookRent(client, book);
 
-            while (copy.IsAvailable == false)
-            {
-
-                if (copyList.MoveNext()==false)
-                {
-                    return new NotFoundObjectResult("No copy avaiable...");
-                }
-                copy = copyList.Current;
-            }
-
-            copy.IsAvailable = false;
-
-            BackgroundJob.Enqueue(() => SendMessage.SendSimpleMessage());
-            BackgroundJob.Schedule(() => SendMessage.SendSimpleMessage(), TimeSpan.FromSeconds(28));
-
-            var bookRent = new BookRent
-            {
-                RentDate = System.DateTime.Now,
-                AssumendReturnDate = System.DateTime.Now.AddDays(30),
-                Client = new Client
-                {
-                    ClientFirstName = client.ClientFirstName,
-                    ClientLastName = client.ClientLastName,
-                    ClientEmail = client.ClientEmail
-                }
-            };
-
-            copy.BookRent.Add(bookRent);
-            _dsObject.Update(book);
-
-            return new OkResult();
+            return new OkObjectResult(booUpdated);
         }
+
+        [HttpPost("postCollection")]
+        public IActionResult PostCollection()
+        {
+            _bookService.InsertMany();
+            return new OkResult();
+
+        }
+      
+
     }
 }

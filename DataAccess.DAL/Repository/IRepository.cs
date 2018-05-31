@@ -17,5 +17,7 @@ namespace DataAcces.DAL.Repository
         void Update(T entity);
 
         void Remove(ObjectId id);
+
+        void InsertMany(IEnumerable<T> entityList);
     }
 }

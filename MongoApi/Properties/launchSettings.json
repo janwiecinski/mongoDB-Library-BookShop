@@ -21,7 +21,7 @@
       }
     },
     "MongoApi": {
-      "commandName": "IIS",
+      "commandName": "IISExpress",
       "workingDirectory": "http://localhost/mongoApi/swagger",
       "launchBrowser": true,
       "launchUrl": "swagger",
@@ -29,15 +29,6 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "http://localhost:50240/"
-    },
-    "IIS": {
-      "commandName": "IIS",
-      "workingDirectory": "http://localhost/mongoApi/swagger",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
     }
   }
 }

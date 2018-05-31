@@ -12,29 +12,35 @@ using Hangfire;
 using Microsoft.Owin;
 using MongoApi.Utilts;
 using MongoApi.Controllers;
+using MongoApi.Models;
 
 [assembly: OwinStartup(typeof(MongoApi.Startup))]
 
 namespace MongoApi
 {
     public class Startup
-    {
+    { 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+           
         }
 
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<IISOptions>(options => { options.ForwardClientCertificate = false; options.AutomaticAuthentication = true; });
+            var connstring = Configuration.GetSection("DatabaseConnection:ConnectionString").Value;
+            var database = Configuration.GetSection("DatabaseConnection:Database").Value;
+            var sendMessParam = Configuration.GetSection("SendMessageParams");
+            var hangFireConnString = Configuration.GetSection("HangFireDatabaseConnection").Value;
 
+            services.Configure<SendMessageParams>(sendMessParam);
+            services.AddScoped<IMyDatabaseWrapper>(sp=> new MyDatabaseWrapper(connstring, database));
             services.AddTransient<IRepository<BookModel>, GenericRepository<BookModel>>();
-            services.AddTransient<IGenericService<BookModel>, GenericService<BookModel>>();
-            services.AddScoped<IMyDatabase<BookModel>, MyDatabase<BookModel>>();
-            services.AddHangfire(x => x.UseSqlServerStorage(@"Server=JANEK1985\SQLEXPRESS; Database=Hangfire; Integrated Security=SSPI;"));
+            services.AddTransient<IBookModelService, BookModelService>();
+            services.AddHangfire(x => x.UseSqlServerStorage(hangFireConnString));
 
             services.AddAutoMapper();
             

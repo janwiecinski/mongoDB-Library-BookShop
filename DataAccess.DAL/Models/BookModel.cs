@@ -42,14 +42,14 @@ namespace DataAcces.DAL.Models
 
     public class Author
     {
-        [BsonElement("AuthorId")]
-        public int AuthorId { get; set; }
+        [BsonElement("AuthId")]
+        public int AuthId { get; set; }
 
-        [BsonElement("AuthorFirstName")]
-        public string AuthorFirstName { get; set; }
+        [BsonElement("FirstName")]
+        public string FirstName { get; set; }
 
-        [BsonElement("AuthorLastName")]
-        public string AuthorLastName { get; set; }
+        [BsonElement("LastName")]
+        public string LastName { get; set; }
 
     }
 
@@ -98,13 +98,13 @@ namespace DataAcces.DAL.Models
             set { strId = value; }
         }
 
-        [BsonElement("ClientFirstName")]
-        public string ClientFirstName { get; set; }
+        [BsonElement("FirstName")]
+        public string FirstName { get; set; }
 
-        [BsonElement("ClientLastName")]
-        public string ClientLastName { get; set; }
+        [BsonElement("LastName")]
+        public string LastName { get; set; }
 
-        [BsonElement("ClientEmail")]
-        public string ClientEmail { get; set; }
+        [BsonElement("Email")]
+        public string Email { get; set; }
     }
 }
