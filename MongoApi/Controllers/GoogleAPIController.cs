@@ -6,27 +6,34 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using Newtonsoft.Json;
+using MongoApi.Models;
+using Microsoft.Extensions.Options;
 
 namespace MongoApi.Controllers
 {
     [Produces("application/json")]
-    [Route("api/GoogleAPI")]
-    public class GoogleAPIController : Controller
+    [Route("api/GoogleAPIBooks")]
+    public class GoogleAPIController : Controller 
     {
+        private readonly GoogleApiKey _googleApiKey;
+
+        public GoogleAPIController(IOptions<GoogleApiKey> options)
+        {
+            _googleApiKey = options.Value;
+        }
         [HttpGet("getGoogleBook")]
         public async Task<IActionResult> GetGoogleBook()
         {
-            string url = "https://www.googleapis.com/books/v1/volumes?q=a&fields=items%2FvolumeInfo%2Ftitle&key=AIzaSyAlSzb3Dv5ExVZsikbJ_EyU64iCc2H_-9c";
+            string url = "https://www.googleapis.com/books/v1/volumes?q=a&fields=items%2FvolumeInfo%2Ftitle&key="+_googleApiKey.GoogleKey1+"";
             var client = new HttpClient();
             var response = await client.GetAsync(url);
          
-            var product = await response.Content.ReadAsStreamAsync();
+            var product = await response.Content.ReadAsStringAsync();
 
-            string json = JsonConvert.SerializeObject(product);
 
             client.Dispose();
 
-            return new OkObjectResult(json);
+            return new OkObjectResult(product);
         }
     }
 }

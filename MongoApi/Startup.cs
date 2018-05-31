@@ -35,7 +35,9 @@ namespace MongoApi
             var database = Configuration.GetSection("DatabaseConnection:Database").Value;
             var sendMessParam = Configuration.GetSection("SendMessageParams");
             var hangFireConnString = Configuration.GetSection("HangFireDatabaseConnection").Value;
+            var googleApiKey = Configuration.GetSection("GoogleApiKey");
 
+            services.Configure<GoogleApiKey>(googleApiKey);
             services.Configure<SendMessageParams>(sendMessParam);
             services.AddScoped<IMyDatabaseWrapper>(sp=> new MyDatabaseWrapper(connstring, database));
             services.AddTransient<IRepository<BookModel>, GenericRepository<BookModel>>();
