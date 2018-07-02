@@ -6,6 +6,7 @@ namespace DataAcces.DAL
     public class MyDatabaseWrapper : IMyDatabaseWrapper
     {
         public IMongoDatabase Database { get; set; }
+
         public MyDatabaseWrapper(string connectionString, string database)
         {
             var client = new MongoClient(connectionString);
@@ -13,8 +14,3 @@ namespace DataAcces.DAL
         }
     }
 }
-//var client = new MongoClient(new MongoClientSettings
-//{
-//    ConnectionMode = ConnectionMode.Direct,
-//    //Server = "mongodb://localhost:27017"
-//});

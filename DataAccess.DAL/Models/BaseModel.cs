@@ -6,6 +6,6 @@ namespace DataAcces.DAL.Models
     public class BaseModel
     {
         [BsonId]
-        public ObjectId Id { get; set; }
+        public ObjectId _Id { get; set; }
     }
 }

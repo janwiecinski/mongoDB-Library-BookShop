@@ -19,7 +19,11 @@ using MongoApi.Models;
 namespace MongoApi
 {
     public class Startup
-    { 
+    {
+        private const string bucketName = "jaskiteamlibrary/JSON";
+        private const string keyName1 = "AKIAIQHW2ME3SKNOOGVA";
+        private const string keyName2 = "+bnNTKse0DFR7ZsFpzWXL4tAqrFn40IWMY6GFdLF";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -34,14 +38,15 @@ namespace MongoApi
             var connstring = Configuration.GetSection("DatabaseConnection:ConnectionString").Value;
             var database = Configuration.GetSection("DatabaseConnection:Database").Value;
             var sendMessParam = Configuration.GetSection("SendMessageParams");
-            var hangFireConnString = Configuration.GetSection("HangFireDatabaseConnection").Value;
-            var googleApiKey = Configuration.GetSection("GoogleApiKey");
+            var hangFireConnString = Configuration.GetConnectionString("MongoApi.Hangfire");
 
-            services.Configure<GoogleApiKey>(googleApiKey);
             services.Configure<SendMessageParams>(sendMessParam);
             services.AddScoped<IMyDatabaseWrapper>(sp=> new MyDatabaseWrapper(connstring, database));
             services.AddTransient<IRepository<BookModel>, GenericRepository<BookModel>>();
+            services.AddTransient<IRepository<Author>, GenericRepository<Author>>();
+            services.AddTransient<IRepository<Client>, GenericRepository<Client>>();
             services.AddTransient<IBookModelService, BookModelService>();
+            services.AddTransient<IAmazonS3, AmazonSendService>();
             services.AddHangfire(x => x.UseSqlServerStorage(hangFireConnString));
 
             services.AddAutoMapper();

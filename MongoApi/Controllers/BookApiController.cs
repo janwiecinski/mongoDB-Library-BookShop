@@ -4,15 +4,12 @@ using MongoDB.Bson;
 using DataAcces.DAL.Models;
 using MongoApi.Models;
 using AutoMapper;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace MongoApi.Controllers
 {
     [Produces("application/json")]
     [Route("api/Book")]
-    public class BookApiController : Controller
+    public class BookApiController : Controller 
     {
         private IBookModelService _bookService;
         private readonly IMapper _mapper;
@@ -83,12 +80,12 @@ namespace MongoApi.Controllers
             {
                 return NotFound();
             }
-            _bookService.Remove(book.Id);
+            _bookService.Remove(book._Id);
             return new OkResult();
         }
 
         [HttpPut("bookRent/{id}")]
-        public IActionResult BookRent(string id, ClientViewModel clientModel)
+        public IActionResult BookRent(string id, [FromBody]ClientViewModel clientModel)
         {
             var client = _mapper.Map<Client>(clientModel);
             var book = _bookService.GetItem(new ObjectId(id));
@@ -96,15 +93,5 @@ namespace MongoApi.Controllers
 
             return new OkObjectResult(booUpdated);
         }
-
-        [HttpPost("postCollection")]
-        public IActionResult PostCollection()
-        {
-            _bookService.InsertMany();
-            return new OkResult();
-
-        }
-      
-
     }
 }

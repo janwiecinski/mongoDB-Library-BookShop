@@ -7,16 +7,13 @@ namespace DataAcces.DAL.Models
 {
     public class BookModel : BaseModel
     {
-        [BsonElement("BookId")]
-        public int BookId { get; set; }
-
         [BsonElement("Title")]
         [BsonIgnoreIfNull]
         public string Title { get; set; }
 
-        [BsonElement("Author")]
+        [BsonElement("Author_Id")]
         [BsonIgnoreIfNull]
-        public  Author Author { get; set; }
+        public  ObjectId Author_Id { get; set; }
 
         [BsonElement("BookCopyItems")]
         public  IEnumerable<BookCopy> BookCopyItems{ get; set; }
@@ -40,11 +37,8 @@ namespace DataAcces.DAL.Models
         }
     }
 
-    public class Author
+    public class Author : BaseModel
     {
-        [BsonElement("AuthId")]
-        public int AuthId { get; set; }
-
         [BsonElement("FirstName")]
         public string FirstName { get; set; }
 
@@ -70,7 +64,7 @@ namespace DataAcces.DAL.Models
         public DateTime RentDate { get; set; }
 
         [BsonElement("AssumedReturnDate")]
-        public DateTime AssumendReturnDate { get; set; }
+        public DateTime AssumedReturnDate { get; set; }
 
         [BsonElement("FactReturnDate")]
         [BsonIgnoreIfNull]
@@ -80,24 +74,12 @@ namespace DataAcces.DAL.Models
         [BsonIgnoreIfNull]
         public int PenaltyCost { get; set; }
 
-        [BsonElement("Client")]
-        public  Client Client { get; set; }
+        [BsonElement("Client_Id")]
+        public  ObjectId Client_Id { get; set; }
     }
 
-    public class Client
+    public class Client : BaseModel
     {
-        private string strId;
-        [BsonElement("ClientId")]
-        public string ClientId {
-            get
-            {
-                if (strId == null)
-                { return strId = Guid.NewGuid().ToString(); }
-                  return strId;
-            }
-            set { strId = value; }
-        }
-
         [BsonElement("FirstName")]
         public string FirstName { get; set; }
 

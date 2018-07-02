@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "BookResult";
+}
+
+<h2>BookResult</h2>
+
+<table class="table">
+    <thead>Book Library Table</thead>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td style="display:none;"><span id="bookId">@item.Id</span></td>
+            <td><span id="title">@item.Title</span></td>
+            <td style="display:none;"><span id="authorId">@item.Author.Id</span></td>
+            <td><span id="FirstNameId">@item.Author.FirstName</span></td>
+            <td><span id="LastNameId">@item.Author.LastName</span></td>
+            <td><input type="checkbox" id="checkBox_@item.Id" class="checkbox" /></td>
+        </tr>
+    }
+    <tr>
+        <td>
+            <input type="button" class="bg-primary" id="btnSend" value="SEND"/>
+        </td>
+    </tr>
+</table>
+@section BookResult
+{ 
+<script type="text/javascript">
+    var dataTable = [];
+    var item;
+    var url = '@Url.Action("CreateBookPackage", "Book")';
+
+    $("#btnSend").click(function () {
+        $("input:checked").each(function () {
+            item = {
+                "Id": $(this).parent().parent().children().children('span#bookId').text(),
+                "Title": $(this).parent().parent().children().children('span#title').text(),
+                "Author.Id": $(this).parent().parent().children().children('span#authorId').text(),
+                "Author.FirstName": $(this).parent().parent().children().children('span#FirstNameId').text(),
+                "Author.LastName": $(this).parent().parent().children().children('span#LastNameId').text(), 
+                "User": "Jasiek"
+            };
+            dataTable.push(item);
+        });
+
+        $.each(dataTable, function (index, value) {
+            console.log(value);
+        });
+
+        $.ajax(
+            {
+                url: url,
+                type:'POST',
+                data: { listdata: dataTable} ,
+                success: function (result)
+                {
+                    console.log(result);
+                },
+                error: function (er, xhr)
+                {
+                    console.log(er);
+                }
+            });
+        });
+</script>
+}

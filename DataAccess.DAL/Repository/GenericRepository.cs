@@ -26,14 +26,16 @@ namespace DataAcces.DAL
 
         public T GetItem(ObjectId id)
         {
-            var result = Collection.Find<T>(t=>t.Id==id).FirstOrDefault();
+            var result = Collection.Find<T>(t=>t._Id.Equals(id)).FirstOrDefault();
             return result;
         }
 
         public T Create(T p)
         {
-            p.Id = new ObjectId();
-
+            if(p._Id.Equals(new ObjectId()))
+            {
+                p._Id = new ObjectId();
+            }
             Collection.InsertOne(p);
 
             return p;
@@ -41,25 +43,25 @@ namespace DataAcces.DAL
 
         public void Update( T entity)
         {
-            var filter = Builders<T>.Filter.Eq(s => s.Id, entity.Id);
+            var filter = Builders<T>.Filter.Eq(s => s._Id, entity._Id);
             Collection.ReplaceOne(filter, entity);
         }
 
         public void Remove(ObjectId id)
         {
-            var searchedElement = Builders<T>.Filter.Eq(s => s.Id, id);
+            var searchedElement = Builders<T>.Filter.Eq(s => s._Id, id);
             Collection.DeleteOne(searchedElement);
         }
 
-        public void InsertMany(IEnumerable<T> bookList)
+        public void InsertMany(IEnumerable<T> entityList)
         {
-            foreach (var item in bookList)
+            foreach (var item in entityList)
             {
-                item.Id = new ObjectId();
+                item._Id = new ObjectId();
             }
             try
             {
-                Collection.InsertMany(bookList);
+                Collection.InsertMany(entityList);
             }
             catch(Exception ex)
             {
