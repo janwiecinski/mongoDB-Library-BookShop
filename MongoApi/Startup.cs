@@ -46,7 +46,6 @@ namespace MongoApi
             services.AddTransient<IRepository<Author>, GenericRepository<Author>>();
             services.AddTransient<IRepository<Client>, GenericRepository<Client>>();
             services.AddTransient<IBookModelService, BookModelService>();
-            services.AddTransient<IAmazonS3, AmazonSendService>();
             services.AddHangfire(x => x.UseSqlServerStorage(hangFireConnString));
 
             services.AddAutoMapper();
